@@ -84,6 +84,8 @@ export interface Dot {
   instructions: string;
   researchAllowed: boolean;
   memoryAllowed: boolean;
+  /** Optional per-Dot model override; falls back to OPENAI_MODEL. */
+  model?: string | null;
   createdAt: number;
   learningContainerId?: string | null;
   skillDeliveryEnabled?: boolean;

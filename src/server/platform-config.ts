@@ -31,6 +31,7 @@ export interface PlatformConfig extends WebConfig {
   computerNamespace?: string;
   browserUrl?: string;
   browserSecret?: string;
+  ytgRoot?: string;
   voiceKey?: string;
   voiceModel?: string;
   voiceName: string;

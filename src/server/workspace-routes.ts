@@ -13,6 +13,7 @@ const dotSchema = z
     instructions: z.string().trim().min(3).max(2000),
     researchAllowed: z.boolean(),
     memoryAllowed: z.boolean(),
+    model: z.string().trim().max(120).nullable().optional(),
     learningContainerId: learningContainerIdSchema.optional(),
     skillDeliveryEnabled: z.boolean().optional(),
     spaceIds: z.array(z.string().min(1)).min(1).max(100).optional(),
@@ -87,6 +88,7 @@ export function workspaceRoutes(platform: Platform, voice: VoiceService) {
         data.data.spaceIds,
         data.data.learningContainerId,
         data.data.skillDeliveryEnabled,
+        data.data.model ?? null,
       ),
       201,
     );

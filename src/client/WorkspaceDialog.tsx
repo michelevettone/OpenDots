@@ -53,6 +53,9 @@ export function WorkspaceDialog({
   const [skillDelivery, setSkillDelivery] = useState(
     dialog.type === 'dot' ? (dialog.dot?.skillDeliveryEnabled ?? false) : false,
   );
+  const [model, setModel] = useState(
+    dialog.type === 'dot' ? (dialog.dot?.model ?? '') : '',
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const container = useRef<HTMLElement>(null);
@@ -142,6 +145,7 @@ export function WorkspaceDialog({
                 memoryAllowed: memory,
                 learningContainerId: learningContainer.trim() || null,
                 skillDeliveryEnabled: skillDelivery,
+                model: model.trim() || null,
               };
             }
             if (dialog.type === 'settings') {
@@ -207,6 +211,20 @@ export function WorkspaceDialog({
                     ? 'You are a thoughtful research partner. Compare evidence and be clear about uncertainty.'
                     : ''
                 }
+              />
+            </>
+          )}
+          {dialog.type === 'dot' && (
+            <>
+              <label className="field-label" htmlFor="entity-model">
+                Model (optional)
+              </label>
+              <input
+                id="entity-model"
+                value={model}
+                maxLength={120}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="deepseek-v4-flash (defaults to OPENAI_MODEL)"
               />
             </>
           )}

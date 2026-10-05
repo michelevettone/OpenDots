@@ -3,6 +3,7 @@ import { pageReviewTool } from '../shared/page-review.js';
 import { ComputerService } from './computer-service.js';
 import { computerTools } from './computer-tools.js';
 import { pageAccess, pageTools } from './page-tools.js';
+import { ytgTools } from './ytg-tools.js';
 import { AbstractAgent } from '@ag-ui/client';
 import { type BaseEvent, type RunAgentInput, EventType } from '@ag-ui/core';
 import {
@@ -78,7 +79,7 @@ export class DotAgent extends AbstractAgent {
         if (
           !this.config.intelligenceKey ||
           !this.config.apiKey ||
-          !this.config.model
+          (!this.config.model && !dot.model)
         )
           throw new Error('Intelligence and model configuration are required.');
         const initialSettings = this.store.settings();
@@ -251,15 +252,22 @@ export class DotAgent extends AbstractAgent {
           initialSettings.memoryAllowed && dot.memoryAllowed
             ? this.store.memories().map((memory) => memory.text)
             : [];
-        const adapter = openaiCompatibleText(this.config.model, {
+        const model = dot.model ?? this.config.model;
+        if (!model) throw new Error('Model configuration is required.');
+        const adapter = openaiCompatibleText(model, {
           apiKey: this.config.apiKey,
           baseURL: this.config.baseUrl ?? 'https://api.openai.com/v1',
           api: 'chat-completions',
           maxRetries: 1,
+          defaultHeaders: {
+            'User-Agent': 'opendots/0.1',
+            'x-opencode-session': input.threadId,
+          },
         });
         const serverTools = [
           ...tools,
           ...pageTools(pages),
+          ...(this.config.ytgRoot ? ytgTools(this.config.ytgRoot) : []),
           ...(computer.configured
             ? computerTools(computer, dot.id, check, controller.signal)
             : []),

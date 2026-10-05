@@ -39,6 +39,7 @@ const config: PlatformConfig = {
   parallelApiKey: process.env.PARALLEL_API_KEY,
   browserUrl: process.env.BROWSER_URL,
   browserSecret: process.env.BROWSER_SECRET,
+  ytgRoot: process.env.YTG_ROOT || undefined,
   computerSupervisorUrl: process.env.COMPUTER_SUPERVISOR_URL,
   computerSupervisorToken: process.env.COMPUTER_SUPERVISOR_TOKEN,
   computerToken: process.env.COMPUTER_TOKEN,

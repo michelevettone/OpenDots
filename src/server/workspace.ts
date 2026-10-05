@@ -26,6 +26,7 @@ export class WorkspaceStore {
     for (const [table, column, definition] of [
       ['dots', 'learningContainerId', 'TEXT'],
       ['dots', 'skillDeliveryEnabled', 'INTEGER NOT NULL DEFAULT 0'],
+      ['dots', 'model', 'TEXT'],
       ['thread_bindings', 'learningContainerId', 'TEXT'],
     ]) {
       if (
@@ -123,6 +124,7 @@ export class WorkspaceStore {
     spaceIds: string[] = [spaceId],
     learningContainerId: string | null = null,
     skillDeliveryEnabled = false,
+    model: string | null = null,
   ): Dot {
     this.validateSpaceAccess(spaceId, spaceIds);
     validateLearningSettings(learningContainerId, skillDeliveryEnabled);
@@ -136,13 +138,14 @@ export class WorkspaceStore {
       memoryAllowed,
       learningContainerId,
       skillDeliveryEnabled,
+      model,
       createdAt: Date.now(),
     };
     this.db.exec('BEGIN');
     try {
       this.db
         .prepare(
-          'INSERT INTO dots (id, spaceId, name, instructions, researchAllowed, memoryAllowed, createdAt, learningContainerId, skillDeliveryEnabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO dots (id, spaceId, name, instructions, researchAllowed, memoryAllowed, createdAt, learningContainerId, skillDeliveryEnabled, model) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         )
         .run(
           dot.id,
@@ -154,6 +157,7 @@ export class WorkspaceStore {
           dot.createdAt,
           learningContainerId,
           +skillDeliveryEnabled,
+          model,
         );
       for (const id of dot.spaceIds)
         this.db.prepare('INSERT INTO dot_spaces VALUES (?, ?)').run(dot.id, id);
@@ -186,6 +190,7 @@ export class WorkspaceStore {
       spaceIds?: string[];
       learningContainerId?: string | null;
       skillDeliveryEnabled?: boolean;
+      model?: string | null;
     },
   ): Dot {
     const current = this.dot(id);
@@ -199,12 +204,14 @@ export class WorkspaceStore {
         : patch.learningContainerId;
     const skillDeliveryEnabled =
       patch.skillDeliveryEnabled ?? current.skillDeliveryEnabled ?? false;
+    const model =
+      patch.model === undefined ? (current.model ?? null) : patch.model;
     validateLearningSettings(learningContainerId, skillDeliveryEnabled);
     this.db.exec('BEGIN');
     try {
       this.db
         .prepare(
-          'UPDATE dots SET name=?, instructions=?, researchAllowed=?, memoryAllowed=?, learningContainerId=?, skillDeliveryEnabled=? WHERE id=?',
+          'UPDATE dots SET name=?, instructions=?, researchAllowed=?, memoryAllowed=?, learningContainerId=?, skillDeliveryEnabled=?, model=? WHERE id=?',
         )
         .run(
           patch.name,
@@ -213,6 +220,7 @@ export class WorkspaceStore {
           +patch.memoryAllowed,
           learningContainerId,
           +skillDeliveryEnabled,
+          model,
           id,
         );
       this.db
